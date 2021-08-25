@@ -8,6 +8,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Date;
+use Carbon\Carbon;
 
 class EventsController extends BaseController
 {
@@ -96,8 +97,24 @@ class EventsController extends BaseController
     ]
      */
 
-    public function getEventsWithWorkshops() {
+    /*public function getEventsWithWorkshops() {
         throw new \Exception('implement in coding task 1');
+    }*/
+
+    public function getEventsWithWorkshops() {
+        $status = array('success' => false, 'message' => 'Some error occured');
+        try {
+            //pr($details);exit;
+            if (!empty($details) && count($details) > 0) {
+               return "Test biraj Query"; 
+            } else {
+                $status['message'] = 'No record available';
+                return \Response::json($status);
+            }    
+        } catch (\Exception $e) {
+            $status['message'] = $e->getMessage();
+            return \Response::json($status);
+        }
     }
 
 
@@ -175,7 +192,45 @@ class EventsController extends BaseController
     ```
      */
 
-    public function getFutureEventsWithWorkshops() {
+    /*public function getFutureEventsWithWorkshops() {
         throw new \Exception('implement in coding task 2');
+    }*/
+
+    public function getFutureEventsWithWorkshops() {
+        $status = array('success' => false, 'message' => 'Some error occured');
+        try {
+            $details = Event::with('workshops')->get();
+            if (!empty($details) && count($details) > 0) {
+                $data = array();
+                foreach ($details as $key => $value) {
+                    $data[$key]["id"]         =  $value->id;
+                    $data[$key]["name"]       =  $value->name;
+                    $data[$key]["created_at"] =  date('Y-m-d H:i:s', strtotime($value->created_at));
+                    $data[$key]["updated_at"] =  date('Y-m-d H:i:s', strtotime($value->updated_at));
+                    foreach ($value->workshops as $key => $value) {
+                        $data[$key]['id'] = $value->id;
+                        $data[$key]['start'] = $value->start;
+                        $data[$key]['end'] = $value->end;
+                        $data[$key]['event_id'] = $value->event_id;
+                        $data[$key]['name'] = $value->name;
+                        $data[$key]['created_at'] = date('Y-m-d H:i:s', strtotime($value->created_at));
+                        $data[$key]['updated_at'] = date('Y-m-d H:i:s', strtotime($value->updated_at));
+                    }
+                echo "<pre>"; print_r($data);  
+                } 
+            //echo "<pre>"; print_r($data); 
+            exit;
+             return \Response::json($data);   
+             //return "Query two implementation";    
+            } else {
+                $status['message'] = 'No record available';
+                return \Response::json($status);
+            }    
+        } catch (\Exception $e) {
+            $status['message'] = $e->getMessage();
+            return \Response::json($status);
+        }
     }
+
+
 }
